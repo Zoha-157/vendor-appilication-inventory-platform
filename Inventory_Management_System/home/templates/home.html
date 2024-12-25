@@ -1,0 +1,106 @@
+{% load static %}
+{% load tz %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Management System | Home</title>
+    <link rel="stylesheet" href="{% static 'home.css' %}" type="text/css">
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/logo.png' %}">
+</head>
+
+<body>
+    <header class="header">
+        <nav class="navig h-nav-resp">
+            <a href="/dashboard"><img src="{% static 'Images/logo.png' %}" alt="Logo" class="logo"></a>
+            <div class="navs">
+                <ul class="navul v-class-resp">
+                    <li class="navc"><a href="/dashboard">Dashboard</a></li>
+                    <li class="navc"><a href="/inventory">Inventory</a></li>
+                    <li class="navc"><a href="/transactions">Transactions</a></li>
+                    {% if user.is_authenticated and user.is_superuser %}
+                    <li class="navc"><a href="/feedbacks">Feedbacks</a></li>
+                    {% endif %}
+                </ul>
+                <div class="logout navig" onclick="logout()">Log out</div>
+            </div>
+            <div class="burger">
+                <div class="line"></div>
+                <div class="line"></div>
+                <div class="line"></div>
+            </div>
+        </nav>
+    </header>
+
+    <section class="home-section">
+        <p class="greetings">{{ greeting }}, {{ username }}</p>
+        <div class="home-header">
+            <p class="home-heads">Low Stocks</p>
+            <img src="{% static 'Images/MoreIcon.png' %}" alt="See More" class="seeMore" onclick="inventoryRedir()">
+        </div>
+        <div class="stock-cards">
+            {% for product in low_quantity_products %}
+            <div class="stock-card">
+                <div class="product-name">{{ product.prod_name }}</div>
+                <div class="stock-info">Stock Quantity: {{ product.quantity }}</div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="home-header">
+            <p class="home-heads">Transactions</p>
+            <img src="{% static 'Images/MoreIcon.png' %}" alt="See More" class="seeMore" onclick="transactionsRedir()">
+        </div>
+        <div class="transaction-cards">
+            <div class="table">
+                <table class="productTable">
+                    <tr>
+                        <th class="tableHead">Software Id</th>
+                        <th class="tableHead">Transaction Id</th>
+                        <th class="tableHead">Software Name</th>
+                        <th class="tableHead">Price (in $)</th>
+                        <th class="tableHead">Date & Time</th>
+                        <th class="tableHead">Updated Quantity</th>
+                    </tr>
+                    {% for recent_transaction in recent_transactions %}
+                    <tr>
+                        <td class="tableData">{{ recent_transaction.product.prod_id }}</td>
+                        <td class="tableData">{{ recent_transaction.formatted_t_id }}</td>
+                        <td class="tableData">{{ recent_transaction.product.prod_name }}</td>
+                        <td class="tableData">{{ recent_transaction.product.price }}</td>
+                        <td class="tableData">{{ recent_transaction.datetime|timezone:"Asia/Kolkata"|date:"d-m-Y, h:i A" }}</td>
+                        <td class="tableData">
+                            {% if recent_transaction.updated_quantity > 0 %}
+                            <span class="plusMinus plus">+{{ recent_transaction.updated_quantity }}</span>
+                            {% elif recent_transaction.updated_quantity == 0 %}
+                            {{ recent_transaction.updated_quantity }}
+                            {% else %}
+                            <span class="plusMinus minus">{{ recent_transaction.updated_quantity }}</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <nav>
+                <ul>
+                    <li><a href="/dashboard">Dashboard</a></li>
+                    <li><a href="/inventory">Inventory</a></li>
+                    <li><a href="/transactions">Transactions</a></li>
+                </ul>
+            </nav>
+            <p>Inventory Management System</p>
+        </div>
+    </footer>
+
+    <script src="{% static 'home.js' %}" type="text/javascript"></script>
+</body>
+
+</html>
